@@ -26,6 +26,16 @@ TEST (GeometryTest, basicOps) {
 	ASSERT_EQ (a.negation(), Vec2f (-1,-2));
 	Vec2f b (3, 4);
 	ASSERT_NEAR (b.length(), 5, 0.01);
-
 }
 
+TEST (GeometryTest, rect1) {
+	Recti r (10, 20, 30, 40);
+	ASSERT_EQ (r.origin.x, 10);
+	ASSERT_EQ (r.origin.y, 20);
+	ASSERT_EQ (r.width(), 30);
+	ASSERT_EQ (r.height(), 40);
+
+	Recti r2 (40, 20, -30, 40);
+	Recti r2n = r2.normalization();
+	ASSERT_EQ (r, r2n);
+}

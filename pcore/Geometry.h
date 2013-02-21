@@ -130,12 +130,80 @@ inline Point2f toPoint2f (const Point2i & in) {
 	return Point2f (in.x, in.y);
 }
 
+/// A 2D rectangle
+template <class T>
+struct Rect {
+	Rect(){}
+	~Rect(){}
+
+	Rect(const Vec2<T> _origin, const Vec2<T> & _size) : origin (_origin), size (_size){
+	}
+
+	Rect(const T&x0, const T&y0, const T& width, const T&height) {
+		origin.x = x0;
+		origin.y = y0;
+		size.x = width;
+		size.y = height;
+	}
+
+	/// Conversion to float based
+	Rect<float> toRectf () const {
+		return Rect<float> (origin.toVec2f(), size.toVec2f());
+	}
+
+	/** Normalizes the rect, size will be positive. */
+	void normalize () {
+		if (size.x < 0) {
+			origin.x += size.x;
+			size.x = -size.x;
+		}
+		if (size.y < 0) {
+			origin.y += size.y;
+			size.y = -size.y;
+		}
+	}
+
+	/** Returns the normalization. */
+	Rect normalization () const {
+		Rect result (*this);
+		result.normalize();
+		return result;
+	}
+
+	T width () const { return size.x; }
+	T height() const { return size.y; }
+
+	T x0 () const { return origin.x; }
+	T y0 () const { return origin.y; }
+
+	Vec2<T> origin;
+	Vec2<T> size;
+};
+
+template <class T> bool operator== (const Rect<T> & a, const Rect<T> & b) {
+	// We could also test only normalized data
+	// But this would be inconsistent with e.g. Matrices which can also be
+	// interpreted the same but consist of different numeric values.
+	// (and are only checked for equality using numerical equality)
+	return a.origin == b.origin && a.size == b.size;
+}
+
+typedef Rect<int> Recti;
+typedef Rect<float> Rectf;
+
 template <class T>
 struct AABB2 {
 	AABB2 () : empty (true) {}
 	AABB2 (const Vec2<T> & tl, const Vec2<T> & br) {
 		this->tl = tl;
 		this->br = br;
+		empty = false;
+	}
+
+	AABB2 (const Rect<T> & r) {
+		Rect<T> rn = r.normalization();
+		this->tl = rn.origin;
+		this->br = rn.origin + rn.size;
 		empty = false;
 	}
 
@@ -255,6 +323,10 @@ typedef AABB2<float> AABB2f;
 template <class T>
 std::ostream & operator<< (std::ostream & os, const Vec2<T> & vec) {
 	return os << vec.x << "," << vec.y;
+}
+template <class T>
+std::ostream & operator<< (std::ostream & os, const Rect<T> & r) {
+	return os << r.origin << " " << r.size.x << "x" << r.size.y;
 }
 
 template <class T>
