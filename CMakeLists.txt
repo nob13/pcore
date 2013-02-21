@@ -14,3 +14,13 @@ install (FILES FindPCORE.cmake DESTINATION share/cmake/Modules)
 add_executable (test test/main.cpp)
 target_link_libraries (test pcore)
 
+# Testcases
+find_package (GTest)
+if (GTEST_FOUND)
+	file (GLOB_RECURSE test_src_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*.cpp)
+	file (GLOB_RECURSE test_header_files RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} testcases/*.h)
+	add_executable (testcases ${test_src_files} ${test_header_files})	
+	target_link_libraries (testcases pcore ${GTEST_BOTH_LIBRARIES})
+else()
+	message (STATUS "No google test found, no testcases")
+endif()
