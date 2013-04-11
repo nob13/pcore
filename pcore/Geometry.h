@@ -78,39 +78,43 @@ struct Vec2 {
 };
 
 template <class T>
-inline bool operator== (const Vec2<T>& a, const Vec2<T> & b) {
+bool operator== (const Vec2<T>& a, const Vec2<T> & b) {
 	return a.x == b.x && a.y == b.y;
+}
+template <class T>
+bool operator!= (const Vec2<T>& a, const Vec2<T> & b) {
+	return a.x != b.x || a.y != b.y;
 }
 
 template <class T>
-inline Vec2<T> operator+ (const Vec2<T>& a, const Vec2<T> & b) {
+Vec2<T> operator+ (const Vec2<T>& a, const Vec2<T> & b) {
 	return Vec2<T> (a.x + b.x, a.y + b.y);
 }
 
 template <class T>
-inline Vec2<T> operator- (const Vec2<T>&a, const Vec2<T> & b) {
+Vec2<T> operator- (const Vec2<T>&a, const Vec2<T> & b) {
 	return Vec2<T> (a.x - b.x, a.y - b.y);
 }
 // Scalar multiplication
 template <class T>
-inline Vec2<T> operator* (const Vec2<T>&a, const T & b) {
+Vec2<T> operator* (const Vec2<T>&a, const T & b) {
 	return Vec2<T> (a.x * b, a.y * b);
 }
 template <class T>
-inline Vec2<T> operator/ (const Vec2<T>&a, const T & b) {
+Vec2<T> operator/ (const Vec2<T>&a, const T & b) {
 	return Vec2<T> (a.x / b, a.y / b);
 }
 template <class T>
-inline Vec2<T> operator* (const T&a, const Vec2<T>&b) {
+Vec2<T> operator* (const T&a, const Vec2<T>&b) {
 	return Vec2<T> (a * b.x, a*b.y);
 }
 template <class T>
-inline Vec2<T> min (const Vec2<T> & a, const Vec2<T> & b) {
+Vec2<T> min (const Vec2<T> & a, const Vec2<T> & b) {
 	return Vec2<T> (std::min(a.x, b.x), std::min (a.y, b.y));
 }
 
 template <class T>
-inline Vec2<T> max (const Vec2<T> & a, const Vec2<T> & b) {
+Vec2<T> max (const Vec2<T> & a, const Vec2<T> & b) {
 	return Vec2<T> (std::max(a.x, b.x), std::max (a.y, b.y));
 }
 
@@ -186,6 +190,10 @@ template <class T> bool operator== (const Rect<T> & a, const Rect<T> & b) {
 	// interpreted the same but consist of different numeric values.
 	// (and are only checked for equality using numerical equality)
 	return a.origin == b.origin && a.size == b.size;
+}
+
+template <class T> bool operator!= (const Rect<T> & a, const Rect<T> & b) {
+	return a.origin != b.origin || a.size != b.size;
 }
 
 typedef Rect<int> Recti;

@@ -39,3 +39,25 @@ TEST (GeometryTest, rect1) {
 	Recti r2n = r2.normalization();
 	ASSERT_EQ (r, r2n);
 }
+
+TEST (GeometryTest, vecEqualTest) {
+	Vec2i a (3, 4);
+	Vec2i b (3, 4);
+	Vec2i c (4, 4);
+	Vec2i d (3, 5);
+	ASSERT_EQ (a, b);
+	ASSERT_FALSE (a != b);
+	ASSERT_NE (a, c);
+	ASSERT_NE (a, d);
+}
+
+TEST (GeometryTest, rectEqualTest) {
+	Recti a (3,4,5,6);
+	Recti b (3,4,5,6);
+	Recti c (3,5,5,6);
+	Recti d (3,4,5,7);
+	ASSERT_EQ (a,b);
+	ASSERT_FALSE (a != b);
+	ASSERT_NE (a,c);
+	ASSERT_NE (a,d);
+}
