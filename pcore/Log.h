@@ -4,6 +4,7 @@
 
 namespace pc {
 
+
 // Different log levels
 enum LogLevel { LL_DEBUG, LL_INFO, LL_NOTICE, LL_WARNING, LL_ERROR, LL_COUNT };
 
@@ -11,31 +12,61 @@ enum LogLevel { LL_DEBUG, LL_INFO, LL_NOTICE, LL_WARNING, LL_ERROR, LL_COUNT };
 std::ostream & logStreamPreformat (const char * file, int line, LogLevel level);
 
 /// Executes a given Log
-void execLog (LogLevel logLevel, std::ostream&);
+void logExecLog (LogLevel logLevel, std::ostream&);
+
+/// Log level is requested
+bool logIsRequested (const LogLevel level);
+
+/// Set minimum log level
+void logSetMinLockLevel (const LogLevel level);
+
+/// Set a log thread name for this thread, keep string valid
+void logSetThreadName(const std::string & threadName);
+
+/// RAII Structure locking the log
+struct LogLockGuard {
+	LogLockGuard ();
+	~LogLockGuard();
+private:
+	LogLockGuard(const LogLockGuard&);
+	LogLockGuard& operator=(const LogLockGuard&);
+};
 
 template <class A>
 void log (const char * file, int line, LogLevel level, const A&a) {
-	execLog (level, logStreamPreformat (file, line, level) << a);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a);
 }
 template <class A, class B>
 void log (const char * file, int line, LogLevel level, const A&a, const B&b) {
-	execLog (level, logStreamPreformat (file, line, level) << a << " " << b);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a << " " << b);
 }
 template <class A, class B, class C>
 void log (const char * file, int line, LogLevel level, const A&a, const B&b, const C&c) {
-	execLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c);
 }
 template <class A, class B, class C, class D>
 void log (const char * file, int line, LogLevel level, const A&a, const B&b, const C&c, const D&d) {
-	execLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d);
 }
 template <class A, class B, class C, class D, class E>
 void log (const char * file, int line, LogLevel level, const A&a, const B&b, const C&c, const D&d, const E&e) {
-	execLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d << " " << e);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d << " " << e);
 }
 template <class A, class B, class C, class D, class E, class F>
 void log (const char * file, int line, LogLevel level, const A&a, const B&b, const C&c, const D&d, const E&e, const F&f) {
-	execLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d << " " << e << " " << f);
+	if (!logIsRequested (level)) return;
+	LogLockGuard guard;
+	logExecLog (level, logStreamPreformat (file, line, level) << a << " " << b << " " << c  << " " << d << " " << e << " " << f);
 }
 
 }

@@ -2,6 +2,8 @@
 #include <iostream>
 #include "assert.h"
 #include <sstream>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/tss.hpp>
 
 #ifdef __ANDROID__
 #include <android/log.h>
@@ -9,7 +11,10 @@
 
 namespace pc {
 
-int lineCount = 0;
+static boost::mutex gGlobalLockMutex;
+static LogLevel gMinLogLevel = LL_INFO;
+static boost::thread_specific_ptr< std::string> gThreadName;
+
 
 static std::ostream & logStream(LogLevel level) {
 	return std::cerr;
@@ -63,15 +68,23 @@ static android_LogPriority logPriority (LogLevel level) {
 }
 #endif
 
+static const char * threadName() {
+	if (gThreadName.get()) {
+		return gThreadName->c_str();
+	} else {
+		return "";
+	}
+}
+
 std::ostream & logStreamPreformat (const char * file, int line, LogLevel level) {
 #ifdef __ANDROID__
 	return gAndroidOutputStream << countLogLevel(level) <<  " " << myBaseName(file) << ":" << line <<  " ";
 #else
-	return logStream (level) << "[" << logLevelToString (level) << "] " << countLogLevel(level) <<  " " << myBaseName(file) << ":" << line <<  " ";
+	return logStream (level) << "[" << logLevelToString (level) << "]" << threadName() << " " << countLogLevel(level) <<  " " << myBaseName(file) << ":" << line <<  " ";
 #endif
 }
 
-void execLog (LogLevel level, std::ostream& stream) {
+void logExecLog (LogLevel level, std::ostream& stream) {
 #ifdef __ANDROID__
 	// TODO: Make 'tag' configureable
 	__android_log_print (logPriority(level), "pcore", gAndroidOutputStream.str().c_str());
@@ -79,6 +92,29 @@ void execLog (LogLevel level, std::ostream& stream) {
 #else
 	stream << std::endl;
 #endif
+}
+
+bool logIsRequested (const LogLevel level) {
+	// No locking, if there is indeed inter-thread-log-level changing
+	// nobody cares about race conditions of log levels.
+	return level >= gMinLogLevel;
+}
+
+void logSetMinLockLevel (const LogLevel level) {
+	LogLockGuard guard;
+	gMinLogLevel = level;
+}
+
+LogLockGuard::LogLockGuard() {
+	gGlobalLockMutex.lock();
+}
+
+LogLockGuard::~LogLockGuard() {
+	gGlobalLockMutex.unlock();
+}
+
+void logSetThreadName(const std::string& threadName) {
+	gThreadName.reset (new std::string (std::string ("[") + threadName + "]")); // appending [..] to better format it
 }
 
 
