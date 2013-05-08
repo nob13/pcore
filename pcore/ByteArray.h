@@ -24,6 +24,20 @@ public:
 	/// Constructs Bytearray with specific size and already filled
 	ByteArray (size_t size, char fill) : std::vector<char> (size, fill) {}
 
+	ByteArray (const ByteArray & other) : std::vector<char> (other) {
+	}
+	ByteArray& operator= (const ByteArray& other) {
+		std::vector<char>::operator=(other);
+		return *this;
+	}
+
+#if __cplusplus >= 201103L
+	/// Moving constructor
+	ByteArray (const ByteArray && other) : std::vector<char> (std::move (other)){
+
+	}
+#endif
+
 	/// Hack for C-Style array compatiblity
 	const char * const_c_array () const {
 		return &(*begin());
@@ -64,8 +78,22 @@ public:
 	/// position can also be interpreted as bytes (so '0' won't cut anything, 'length()' will cut them all)
 	/// this is expensive
 	void l_truncate (size_t pos);
-		
-	
+
+	/// Load a (binary) file.
+	/// Returns 0 on success
+	int load(const char * filename);
+
+	/// Load a (binary) file and returns asscociated ByteArray
+	/// Only fast on C++ 0X
+	static ByteArray from_file (const char * filename)  {
+		ByteArray result;
+		result.load(filename);
+		return result;
+	}
+
+	/// Saves into a file
+	/// Returns 0 on success
+	int save(const char * file);
 };
 
 /// Output operator for ByteArray
